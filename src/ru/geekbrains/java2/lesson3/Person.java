@@ -2,7 +2,7 @@ package ru.geekbrains.java2.lesson3;
 
 import java.util.Objects;
 
-public class Person implements Comparable<Person> {
+public class Person /*implements Comparable<Person> */{
 
     private String name;
     private String surname;
@@ -64,11 +64,11 @@ public class Person implements Comparable<Person> {
                 '}';
     }
 
-    @Override
+/*    @Override
     public int compareTo(Person anotherPerson) {
 //        return this.name.compareTo(anotherPerson.getName());
 
         int compareBySurname = this.surname.compareTo(anotherPerson.getSurname());
         return compareBySurname != 0 ? compareBySurname : this.getName().compareTo(anotherPerson.getName());
-    }
+    }*/
 }
