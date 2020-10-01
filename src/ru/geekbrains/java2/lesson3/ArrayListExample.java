@@ -80,7 +80,7 @@ public class ArrayListExample {
     }
 
     private static void arrayListExample() {
-        List<List<Integer>> data = new ArrayList<>(Integer.MAX_VALUE);
+        List<List<Integer>> data = new ArrayList<>();
         data.add(List.of(1,3));
         data.add(List.of(2,4,8));
         for (List<Integer> datum : data) {
@@ -110,15 +110,25 @@ public class ArrayListExample {
         }
 //
 //
-        for (String next : newDataName) {
-            System.out.println(next);
+
+        System.out.println("----");
+
+//        for (String next : new ArrayList<>(newDataName)) {
+//            System.out.print(next);
+//            newDataName.remove(next);
+//        }
+
+        System.out.println();
+        Iterator<String> iterator = newDataName.iterator();
+        while (iterator.hasNext()) {
+            String next = iterator.next();
+            System.out.print(next);
+            iterator.remove();
         }
 
-//        Iterator<String> iterator = newDataName.iterator();
-//        while (iterator.hasNext()) {
-//            String next = iterator.next();
-//            System.out.println(next);
-//        }
+        for (String s : newDataName) {
+            System.out.println(s);
+        }
 
 
 //
