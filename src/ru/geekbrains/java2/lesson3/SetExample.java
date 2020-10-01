@@ -1,6 +1,7 @@
 package ru.geekbrains.java2.lesson3;
 
 import java.util.*;
+import java.util.function.Function;
 
 public class SetExample {
 
@@ -20,7 +21,7 @@ public class SetExample {
 
         System.out.println("---------");
 
-        Set<Person> personSet = new TreeSet<Person>(Comparator.reverseOrder());
+        Set<Person> personSet = new TreeSet<Person>();
 //        Set<Person> personSet = new TreeSet<Person>(Comparator.comparing(Person::getName));
 //        Set<Person> personSet = new TreeSet<Person>(Comparator.comparing(person -> person.getName()));
 //        Set<Person> personSet = new TreeSet<Person>(Comparator.comparing(new Function<Person, String>() {
@@ -29,7 +30,7 @@ public class SetExample {
 //                return person.getName();
 //            }
 //        }));
-        Person oleg   = new Person("Oleg","Petrov", 27);
+        Person oleg   = new Person("Oleg",   "Petrov", 27);
         Person alexey = new Person("Alexey", "Petrov", 29);
         personSet.add(oleg);
         personSet.add(alexey);
