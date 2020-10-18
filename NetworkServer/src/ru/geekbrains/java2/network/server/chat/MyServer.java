@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -66,6 +67,24 @@ public class MyServer {
             }
             client.sendMessage(message);
         }
+    }
+
+    public synchronized void privateMessage(String message, ClientHandler sender) throws IOException {
+        String[] parts = message.split(" ", 3);
+        System.out.println(Arrays.toString(parts));
+        String receiverName = parts[1];
+        String receiverMessage = parts[2];
+        boolean isCorrectName = false;
+        for (ClientHandler client : clients) {
+            System.out.println(receiverName);
+            if (client.getUsername().equals(receiverName)) {
+                client.sendMessage("Личное сообщение от " + sender.getUsername()+" " + receiverMessage);
+                isCorrectName = true;
+                break;
+            }
+
+        }
+        if(!isCorrectName) sender.sendMessage("Данного пользователя нет в чате");
     }
 
     public synchronized void subscribe(ClientHandler handler) {

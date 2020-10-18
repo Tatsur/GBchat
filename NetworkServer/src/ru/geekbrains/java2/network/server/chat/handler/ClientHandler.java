@@ -57,7 +57,11 @@ public class ClientHandler {
             if (message.startsWith("/end")) {
                 return;
             }
-            myServer.broadcastMessage(message, this);
+            if(!message.startsWith("/w ")) {
+                myServer.broadcastMessage(message, this);
+            }else {
+                myServer.privateMessage(message, this);
+            }
         }
     }
 
