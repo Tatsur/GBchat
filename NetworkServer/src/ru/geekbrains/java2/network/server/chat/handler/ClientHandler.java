@@ -3,12 +3,16 @@ package ru.geekbrains.java2.network.server.chat.handler;
 import ru.geekbrains.java2.network.clientserver.Command;
 import ru.geekbrains.java2.network.clientserver.CommandType;
 import ru.geekbrains.java2.network.clientserver.commands.AuthCommandData;
+import ru.geekbrains.java2.network.clientserver.commands.AuthErrorCommandData;
 import ru.geekbrains.java2.network.clientserver.commands.PrivateMessageCommandData;
 import ru.geekbrains.java2.network.clientserver.commands.PublicMessageCommandData;
 import ru.geekbrains.java2.network.server.chat.MyServer;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ClientHandler {
 
@@ -81,7 +85,7 @@ public class ClientHandler {
     private Command readCommand() throws IOException {
         try {
             return  (Command) in.readObject();
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException | SocketException e) {
             String errorMessage = "Unknown type of object from client!";
             System.err.println(errorMessage);
             e.printStackTrace();
@@ -91,6 +95,7 @@ public class ClientHandler {
     }
 
     private void authentication() throws IOException {
+        new Thread(()->closeConnectionTask()).start();
         while (true) {
             Command command = readCommand();
             if(command == null){
@@ -105,6 +110,27 @@ public class ClientHandler {
                 sendMessage(Command.authErrorCommand("Auth command is required!"));
             }
         }
+    }
+
+    private void closeConnectionTask() {
+        TimerTask closeConnectionTask = new TimerTask() {
+            @Override
+            public void run() {
+                if(username == null) {
+                    try {
+                        Command command = Command.authErrorCommand("authentication time out: > 120sec");
+                        out.writeObject(command);
+                        System.out.println("closing connection...");
+                        Thread.sleep(500);
+                        closeConnection();
+                    } catch (IOException | InterruptedException e) {
+                        System.err.println("Client socket error");
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        new Timer().schedule(closeConnectionTask,120_000);
     }
 
     private boolean processAuthCommand(Command command) throws IOException {

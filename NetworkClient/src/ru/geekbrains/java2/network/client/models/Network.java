@@ -2,12 +2,15 @@ package ru.geekbrains.java2.network.client.models;
 
 import javafx.application.Platform;
 import ru.geekbrains.java2.network.client.NetworkChatClient;
+import ru.geekbrains.java2.network.client.controllers.AuthDialogController;
 import ru.geekbrains.java2.network.client.controllers.ViewController;
 import ru.geekbrains.java2.network.clientserver.Command;
+import ru.geekbrains.java2.network.clientserver.CommandType;
 import ru.geekbrains.java2.network.clientserver.commands.*;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.spi.AbstractResourceBundleProvider;
 
 public class Network {
@@ -43,7 +46,32 @@ public class Network {
             return false;
         }
     }
+    public void checkConnectionStatus(){
+        Thread thread = new Thread(()-> {
+            while(true)
+            {
+                try {
+                    Command command = readCommand();
+                    if (command.getType() == CommandType.AUTH_ERROR) {
+                        System.out.println("got auth_error command");
+                        AuthErrorCommandData data = (AuthErrorCommandData) command.getData();
+                        NetworkChatClient.isClose = true;
+                        Platform.runLater(() -> {
+                            NetworkChatClient.showNetworkError(data.getErrorMessage(), "Connection error");
+                        });
+                        close();
+                        break;
+                    }
 
+                } catch (IOException e) {
+                    System.err.println("Unknown command");
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+    }
     public String sendAuthCommand(String login, String password) {
         try {
             Command authCommand = Command.authCommand(login, password);
@@ -59,6 +87,7 @@ public class Network {
                     return null;
                 }
                 case AUTH_ERROR:{
+                    System.out.println("got auth_error command");
                     AuthErrorCommandData data = (AuthErrorCommandData) command.getData();
                     return data.getErrorMessage();
                 }
@@ -70,7 +99,6 @@ public class Network {
             return e.getMessage();
         }
     }
-
     public ObjectInputStream getInputStream() {
         return inputStream;
     }
@@ -78,7 +106,6 @@ public class Network {
     public ObjectOutputStream getOutputStream() {
         return outputStream;
     }
-
     private Command readCommand() throws IOException {
         try {
             return  (Command) inputStream.readObject();
