@@ -28,6 +28,38 @@ public class NetworkChatClient extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
+        network = new Network();
+        if (!network.connect()) {
+            showNetworkError("", "Failed to connect to server");
+            return;
+        }
+
+        openAuthDialog(primaryStage);
+        createChatDialog(primaryStage);
+    }
+
+    public static void showNetworkError(String errorDetails, String errorTitle) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Network Error");
+        alert.setHeaderText(errorTitle);
+        alert.setContentText(errorDetails);
+        alert.showAndWait();
+    }
+    private void createChatDialog(Stage primaryStage) throws java.io.IOException {
+        FXMLLoader mainLoader = new FXMLLoader();
+        mainLoader.setLocation(NetworkChatClient.class.getResource("views/view.fxml"));
+
+        Parent root = mainLoader.load();
+
+        primaryStage.setTitle("Messenger");
+        primaryStage.setScene(new Scene(root, 600, 400));
+
+        viewController = mainLoader.getController();
+        viewController.setNetwork(network);
+
+        primaryStage.setOnCloseRequest(event -> network.close());
+    }
+    private void openAuthDialog(Stage primaryStage) throws java.io.IOException {
         FXMLLoader authLoader = new FXMLLoader();
 
         authLoader.setLocation(NetworkChatClient.class.getResource("views/authDialog.fxml"));
@@ -41,44 +73,10 @@ public class NetworkChatClient extends Application {
         authDialogStage.setScene(scene);
         authDialogStage.show();
 
-        network = new Network();
-        if (!network.connect()) {
-            showNetworkError("", "Failed to connect to server");
-        }
 
         AuthDialogController authController = authLoader.getController();
         authController.setNetwork(network);
         authController.setClientApp(this);
-
-
-
-        FXMLLoader mainLoader = new FXMLLoader();
-        mainLoader.setLocation(NetworkChatClient.class.getResource("views/view.fxml"));
-
-        Parent root = mainLoader.load();
-
-        primaryStage.setTitle("Messenger");
-        primaryStage.setScene(new Scene(root, 600, 400));
-
-//        primaryStage.show();
-
-
-        viewController = mainLoader.getController();
-        viewController.setNetwork(network);
-
-//        network.waitMessages(viewController);
-
-        primaryStage.setOnCloseRequest(event -> {
-            network.close();
-        });
-    }
-
-    public static void showNetworkError(String errorDetails, String errorTitle) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Network Error");
-        alert.setHeaderText(errorTitle);
-        alert.setContentText(errorDetails);
-        alert.showAndWait();
     }
 
     public static void main(String[] args) {

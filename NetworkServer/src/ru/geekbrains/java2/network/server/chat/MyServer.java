@@ -1,5 +1,6 @@
 package ru.geekbrains.java2.network.server.chat;
 
+import ru.geekbrains.java2.network.clientserver.Command;
 import ru.geekbrains.java2.network.server.chat.auth.AuthService;
 import ru.geekbrains.java2.network.server.chat.auth.BaseAuthService;
 import ru.geekbrains.java2.network.server.chat.handler.ClientHandler;
@@ -60,39 +61,41 @@ public class MyServer {
         return authService;
     }
 
-    public synchronized void broadcastMessage(String message, ClientHandler sender) throws IOException {
+    public synchronized void broadcastMessage(ClientHandler sender, Command command) throws IOException {
         for (ClientHandler client : clients) {
             if (client == sender) {
                 continue;
             }
-            client.sendMessage(message);
+            client.sendMessage(command);
         }
     }
 
-    public synchronized void privateMessage(String message, ClientHandler sender) throws IOException {
-        String[] parts = message.split(" ", 3);
-        System.out.println(Arrays.toString(parts));
-        String receiverName = parts[1];
-        String receiverMessage = parts[2];
-        boolean isCorrectName = false;
+    public synchronized void sendPrivateMessage(String recipient, Command command) throws IOException {
         for (ClientHandler client : clients) {
-            System.out.println(receiverName);
-            if (client.getUsername().equals(receiverName)) {
-                client.sendMessage("Личное сообщение от " + sender.getUsername()+" " + receiverMessage);
-                isCorrectName = true;
-                break;
+            if (client.getUsername().equals(recipient)) {
+                client.sendMessage(command);
             }
-
         }
-        if(!isCorrectName) sender.sendMessage("Данного пользователя нет в чате");
     }
 
-    public synchronized void subscribe(ClientHandler handler) {
+    public synchronized void subscribe(ClientHandler handler) throws IOException {
         clients.add(handler);
+        List<String> userNames = getAllUserNames();
+        broadcastMessage(null,Command.updateUsersListCommand(userNames));
     }
 
-    public synchronized void unsubscribe(ClientHandler handler) {
+    private List<String> getAllUserNames() {
+        List<String> userNames = new ArrayList<>();
+        for (ClientHandler client : clients) {
+            userNames.add(client.getUsername());
+        }
+        return userNames;
+    }
+
+    public synchronized void unsubscribe(ClientHandler handler) throws IOException {
         clients.remove(handler);
+        List<String> userNames = getAllUserNames();
+        broadcastMessage(null,Command.updateUsersListCommand(userNames));
     }
 
     public synchronized boolean isNicknameAlreadyBusy(String username) {
