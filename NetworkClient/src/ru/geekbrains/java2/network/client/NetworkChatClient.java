@@ -2,6 +2,7 @@ package ru.geekbrains.java2.network.client;
 
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -23,6 +24,7 @@ public class NetworkChatClient extends Application {
     private Stage authDialogStage;
     private Network network;
     private ViewController viewController;
+    public static boolean isClose = false;
 
 
     @Override
@@ -44,6 +46,7 @@ public class NetworkChatClient extends Application {
         alert.setHeaderText(errorTitle);
         alert.setContentText(errorDetails);
         alert.showAndWait();
+        if(isClose) Platform.exit();
     }
     private void createChatDialog(Stage primaryStage) throws java.io.IOException {
         FXMLLoader mainLoader = new FXMLLoader();
@@ -77,6 +80,7 @@ public class NetworkChatClient extends Application {
         AuthDialogController authController = authLoader.getController();
         authController.setNetwork(network);
         authController.setClientApp(this);
+        network.checkConnectionStatus();
     }
 
     public static void main(String[] args) {
