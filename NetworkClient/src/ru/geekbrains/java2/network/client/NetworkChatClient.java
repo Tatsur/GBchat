@@ -80,7 +80,7 @@ public class NetworkChatClient extends Application {
         AuthDialogController authController = authLoader.getController();
         authController.setNetwork(network);
         authController.setClientApp(this);
-        network.checkConnectionStatus();
+        //network.checkConnectionStatus();
     }
 
     public static void main(String[] args) {
