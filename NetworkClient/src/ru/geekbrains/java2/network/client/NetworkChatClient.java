@@ -74,9 +74,13 @@ public class NetworkChatClient extends Application {
         primaryStage.setScene(new Scene(root, 600, 400));
 
         viewController = mainLoader.getController();
+        viewController.loadHistory();
         viewController.setNetwork(network);
 
-        primaryStage.setOnCloseRequest(event -> network.close());
+        primaryStage.setOnCloseRequest(event -> {
+            viewController.saveHistory();
+            network.close();
+        });
     }
     private void openAuthDialog(Stage primaryStage) throws java.io.IOException {
         FXMLLoader authLoader = new FXMLLoader();
