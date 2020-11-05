@@ -29,6 +29,12 @@ public class Command implements Serializable {
         command.data = new AuthOkCommandData(username);
         return command;
     }
+    public  static Command changeNameCommand(String username,String newUserName){
+        Command command = new Command();
+        command.type = CommandType.CHANGE_NAME;
+        command.data = new ChangeNameCommandData(username,newUserName);
+        return command;
+    }
     public static Command authErrorCommand(String authErrorMessage) {
         Command command = new Command();
         command.type = CommandType.AUTH_ERROR;

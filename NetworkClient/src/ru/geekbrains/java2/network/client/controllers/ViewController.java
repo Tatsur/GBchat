@@ -16,6 +16,7 @@ public class ViewController {
 
     @FXML
     public ListView<String> usersList;
+    public Button changeUsernameButton;
 
     @FXML
     private Button sendButton;
@@ -23,6 +24,7 @@ public class ViewController {
     private TextArea chatHistory;
     @FXML
     private TextField textField;
+
     private Network network;
 
     private String selectedRecipient;
@@ -31,6 +33,13 @@ public class ViewController {
     public void initialize() {
         usersList.setItems(FXCollections.observableArrayList(NetworkChatClient.USERS_TEST_DATA));
         sendButton.setOnAction(event -> sendMessage());
+        changeUsernameButton.setOnAction(event -> {
+            try {
+                NetworkChatClient.showChangeUsernameDialog();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
         textField.setOnAction(event -> sendMessage());
 
         usersList.setCellFactory(lv -> {

@@ -8,23 +8,21 @@ import ru.geekbrains.java2.network.server.chat.handler.ClientHandler;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MyServer {
 
     private final ServerSocket serverSocket;
     private final List<ClientHandler> clients = new ArrayList<>();
-//    private final List<ClientHandler> clients = new CopyOnWriteArrayList<>();
-//    private final List<ClientHandler> clients = Collections.synchronizedList(new ArrayList<>());
     private final AuthService authService;
+    private final Database database;
 
 
     public MyServer(int port) throws IOException {
         this.serverSocket = new ServerSocket(port);
+        this.database = new Database();
         this.authService = new BaseAuthService();
     }
 
@@ -32,6 +30,7 @@ public class MyServer {
         System.out.println("Сервер был запущен");
 
         authService.start();
+        authService.setUsers(database.getUsers());
         try {
             while (true) {
                 waitAndProcessNewClientConnection();
@@ -42,6 +41,7 @@ public class MyServer {
         } finally {
             authService.stop();
             serverSocket.close();
+            database.stop();
         }
     }
 
@@ -98,6 +98,11 @@ public class MyServer {
         broadcastMessage(null,Command.updateUsersListCommand(userNames));
     }
 
+    public synchronized void update() throws IOException {
+        List<String> userNames = getAllUserNames();
+        broadcastMessage(null,Command.updateUsersListCommand(userNames));
+    }
+
     public synchronized boolean isNicknameAlreadyBusy(String username) {
         for (ClientHandler client : clients) {
             if (client.getUsername().equals(username)) {
@@ -107,4 +112,8 @@ public class MyServer {
         return false;
     }
 
+    public void changeUsername(String username, String newUserName) throws SQLException {
+        System.out.format("%s -> %s%n",username,newUserName);
+        database.changeUserName(username,newUserName);
+    }
 }

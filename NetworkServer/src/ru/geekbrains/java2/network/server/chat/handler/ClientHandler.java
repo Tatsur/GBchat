@@ -3,14 +3,17 @@ package ru.geekbrains.java2.network.server.chat.handler;
 import ru.geekbrains.java2.network.clientserver.Command;
 import ru.geekbrains.java2.network.clientserver.CommandType;
 import ru.geekbrains.java2.network.clientserver.commands.AuthCommandData;
-import ru.geekbrains.java2.network.clientserver.commands.AuthErrorCommandData;
+import ru.geekbrains.java2.network.clientserver.commands.ChangeNameCommandData;
 import ru.geekbrains.java2.network.clientserver.commands.PrivateMessageCommandData;
 import ru.geekbrains.java2.network.clientserver.commands.PublicMessageCommandData;
 import ru.geekbrains.java2.network.server.chat.MyServer;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.sql.SQLException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -74,6 +77,21 @@ public class ClientHandler {
                     String message = data.getMessage();
                     String sender = data.getSender();
                     myServer.broadcastMessage(this,Command.messageInfoCommand(message,sender));
+                    break;
+                }case CHANGE_NAME:{
+                    ChangeNameCommandData data  = (ChangeNameCommandData) command.getData();
+                    String username = data.getUsername();
+                    String newUserName = data.getNewUserName();
+                    try {
+                        myServer.changeUsername(username, newUserName);
+                        this.username = newUserName;
+                        myServer.sendPrivateMessage(this.username,Command.changeNameCommand(username,newUserName));
+                    } catch (SQLException throwables) {
+                        System.err.println("Can't change username! Database exception!");
+                        throwables.printStackTrace();
+                    }
+                    myServer.update();
+                    myServer.sendPrivateMessage(this.username,Command.messageInfoCommand(username+"(you) changed username to "+ newUserName,"Server"));
                     break;
                 }
                 default:

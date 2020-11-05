@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="195.0" prefWidth="274.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.geekbrains.java2.network.client.controllers.ChangeUsernameController">
+   <children>
+      <TextField fx:id="newUsernameField" layoutX="43.0" layoutY="41.0" prefHeight="44.0" prefWidth="189.0" promptText="enter new username" />
+      <Button fx:id="applyNewUsernameButton" layoutX="44.0" layoutY="119.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="189.0" text="Change username" />
+   </children>
+</AnchorPane>

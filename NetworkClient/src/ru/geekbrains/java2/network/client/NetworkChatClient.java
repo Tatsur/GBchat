@@ -10,22 +10,24 @@ import javafx.scene.control.Alert;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import ru.geekbrains.java2.network.client.controllers.AuthDialogController;
+import ru.geekbrains.java2.network.client.controllers.ChangeUsernameController;
 import ru.geekbrains.java2.network.client.controllers.ViewController;
 import ru.geekbrains.java2.network.client.models.Network;
 
+import java.io.IOException;
 import java.util.List;
 
 
 public class NetworkChatClient extends Application {
 
     public static final List<String> USERS_TEST_DATA = List.of("Oleg", "Alexey", "Peter");
+    public static Stage changeNameDialogStage;
 
-    private Stage primaryStage;
+    public static Stage primaryStage;
     private Stage authDialogStage;
     private Network network;
     private ViewController viewController;
     public static boolean isClose = false;
-
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -35,18 +37,32 @@ public class NetworkChatClient extends Application {
             showNetworkError("", "Failed to connect to server");
             return;
         }
-
+        ChangeUsernameController.setNetwork(network);
         openAuthDialog(primaryStage);
         createChatDialog(primaryStage);
     }
 
     public static void showNetworkError(String errorDetails, String errorTitle) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Network Error");
-        alert.setHeaderText(errorTitle);
-        alert.setContentText(errorDetails);
-        alert.showAndWait();
-        if(isClose) Platform.exit();
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Network Error");
+            alert.setHeaderText(errorTitle);
+            alert.setContentText(errorDetails);
+            alert.showAndWait();
+            if(isClose) Platform.exit();
+        });
+    }
+    public static void showChangeUsernameDialog() throws IOException {
+        FXMLLoader mainLoader = new FXMLLoader();
+        mainLoader.setLocation(NetworkChatClient.class.getResource("views/changeUsernameDialog.fxml"));
+
+        Parent root = mainLoader.load();
+        changeNameDialogStage = new Stage();
+        changeNameDialogStage.setTitle("Change username");
+        changeNameDialogStage.setScene(new Scene(root));
+        changeNameDialogStage.initModality(Modality.APPLICATION_MODAL);
+        changeNameDialogStage.initOwner(primaryStage);
+        changeNameDialogStage.show();
     }
     private void createChatDialog(Stage primaryStage) throws java.io.IOException {
         FXMLLoader mainLoader = new FXMLLoader();
@@ -80,7 +96,7 @@ public class NetworkChatClient extends Application {
         AuthDialogController authController = authLoader.getController();
         authController.setNetwork(network);
         authController.setClientApp(this);
-        network.checkConnectionStatus();
+        //network.checkConnectionStatus();
     }
 
     public static void main(String[] args) {

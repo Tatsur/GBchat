@@ -2,16 +2,15 @@ package ru.geekbrains.java2.network.client.models;
 
 import javafx.application.Platform;
 import ru.geekbrains.java2.network.client.NetworkChatClient;
-import ru.geekbrains.java2.network.client.controllers.AuthDialogController;
 import ru.geekbrains.java2.network.client.controllers.ViewController;
 import ru.geekbrains.java2.network.clientserver.Command;
 import ru.geekbrains.java2.network.clientserver.CommandType;
 import ru.geekbrains.java2.network.clientserver.commands.*;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.net.SocketException;
-import java.util.spi.AbstractResourceBundleProvider;
 
 public class Network {
 
@@ -23,7 +22,7 @@ public class Network {
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
     private Socket socket;
-    private String username;
+    public String username;
 
     public Network() {
         this(SERVER_ADDRESS, SERVER_PORT);
@@ -154,6 +153,13 @@ public class Network {
                                 });
                                 break;
                             }
+                            case CHANGE_NAME:
+                                ChangeNameCommandData data = (ChangeNameCommandData) command.getData();
+                                username = data.getNewUserName();
+                                Platform.runLater(() -> {
+                                    NetworkChatClient.primaryStage.setTitle(username);
+                                });
+                                break;
                             default:{
                                 viewController.showError("Unknown command from server",command.getType().toString());
                             }
@@ -197,4 +203,8 @@ public class Network {
     }
 
 
+    public void changeUsername(String newUsername) throws IOException {
+        Command command = Command.changeNameCommand(username, newUsername);
+        sendCommand(command);
+    }
 }
