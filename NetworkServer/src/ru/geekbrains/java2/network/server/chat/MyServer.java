@@ -1,6 +1,7 @@
 package ru.geekbrains.java2.network.server.chat;
 
 import ru.geekbrains.java2.network.clientserver.Command;
+import ru.geekbrains.java2.network.server.ThreadExecutor;
 import ru.geekbrains.java2.network.server.chat.auth.AuthService;
 import ru.geekbrains.java2.network.server.chat.auth.BaseAuthService;
 import ru.geekbrains.java2.network.server.chat.handler.ClientHandler;
@@ -18,9 +19,14 @@ public class MyServer {
     private final List<ClientHandler> clients = new ArrayList<>();
     private final AuthService authService;
     private final Database database;
+    private final IThreadExecutor threadExecutor;
 
+    public IThreadExecutor getThreadExecutor() {
+        return threadExecutor;
+    }
 
     public MyServer(int port) throws IOException {
+        this.threadExecutor = new ThreadExecutor();
         this.serverSocket = new ServerSocket(port);
         this.database = new Database();
         this.authService = new BaseAuthService();
@@ -42,6 +48,7 @@ public class MyServer {
             authService.stop();
             serverSocket.close();
             database.stop();
+            threadExecutor.close();
         }
     }
 
