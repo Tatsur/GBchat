@@ -36,7 +36,7 @@ public class ClientHandler {
         in  = new ObjectInputStream(clientSocket.getInputStream());
         out = new ObjectOutputStream(clientSocket.getOutputStream());
 
-        new Thread(() -> {
+        myServer.getThreadExecutor().submit(() -> {
             try {
                 authentication();
                 readMessages();
@@ -49,7 +49,7 @@ public class ClientHandler {
                     System.err.println("Failed to close connection!");
                 }
             }
-        }).start();
+        });
     }
 
     public String getUsername() {
@@ -113,7 +113,7 @@ public class ClientHandler {
     }
 
     private void authentication() throws IOException {
-        new Thread(()->closeConnectionTask()).start();
+        myServer.getThreadExecutor().submit(this::closeConnectionTask);
         while (true) {
             Command command = readCommand();
             if(command == null){
