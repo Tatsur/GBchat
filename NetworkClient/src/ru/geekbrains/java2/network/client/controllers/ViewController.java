@@ -96,22 +96,18 @@ public class ViewController {
         chatHistory.appendText(message);
         chatHistory.appendText(System.lineSeparator());
         chatHistory.appendText(System.lineSeparator());
-        //saveHistory(timestamp,message);
     }
     public void saveHistory(){
-        try {
-            File historyFile = new File(HISTORY_FILE_NAME);
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(historyFile));
+        File historyFile = new File(HISTORY_FILE_NAME);
+        try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(historyFile))){
             outputStreamWriter.write(chatHistory.getText());
-            outputStreamWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
     public void loadHistory(){
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(HISTORY_FILE_NAME));
-            List<String> lines = new LinkedList<String>();
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(HISTORY_FILE_NAME))){
+            List<String> lines = new LinkedList<>();
             while (bufferedReader.ready()){
                 lines.add(bufferedReader.readLine());
             }
