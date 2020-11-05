@@ -7,9 +7,10 @@ import javafx.scene.input.MouseEvent;
 import ru.geekbrains.java2.network.client.NetworkChatClient;
 import ru.geekbrains.java2.network.client.models.Network;
 
-import java.io.IOException;
+import java.io.*;
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 public class ViewController {
@@ -28,6 +29,8 @@ public class ViewController {
     private Network network;
 
     private String selectedRecipient;
+
+    private static final String HISTORY_FILE_NAME = "chatHistory.txt";
 
     @FXML
     public void initialize() {
@@ -94,6 +97,32 @@ public class ViewController {
         chatHistory.appendText(System.lineSeparator());
         chatHistory.appendText(System.lineSeparator());
     }
+    public void saveHistory(){
+        File historyFile = new File(HISTORY_FILE_NAME);
+        try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(historyFile))){
+            outputStreamWriter.write(chatHistory.getText());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public void loadHistory(){
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(HISTORY_FILE_NAME))){
+            List<String> lines = new LinkedList<>();
+            while (bufferedReader.ready()){
+                lines.add(bufferedReader.readLine());
+            }
+            while (lines.size()>100){
+                lines.remove(0);
+            }
+            for (String line : lines) {
+                chatHistory.appendText(line);
+                chatHistory.appendText(System.lineSeparator());
+            }
+        }  catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void showError(String title, String message) {
         NetworkChatClient.showNetworkError(message, title);
     }

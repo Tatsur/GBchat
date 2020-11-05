@@ -15,7 +15,7 @@ import java.net.Socket;
 public class Network {
 
     private static final String SERVER_ADDRESS = "localhost";
-    private static final int SERVER_PORT = 8189;
+    private static final int SERVER_PORT = 8289;
 
     private final String host;
     private final int port;
@@ -108,7 +108,7 @@ public class Network {
     private Command readCommand() throws IOException {
         try {
             return  (Command) inputStream.readObject();
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException | ClassCastException e) {
             String errorMessage = "Unknown type of object from client!";
             System.err.println(errorMessage);
             e.printStackTrace();
