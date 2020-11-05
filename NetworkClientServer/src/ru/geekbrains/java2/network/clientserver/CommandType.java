@@ -10,4 +10,5 @@ public enum CommandType {
     ERROR,
     END,
     UPDATE_USERS_LIST,
+    CHANGE_NAME,
 }
