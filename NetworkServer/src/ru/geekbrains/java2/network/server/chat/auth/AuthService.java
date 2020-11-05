@@ -1,5 +1,9 @@
 package ru.geekbrains.java2.network.server.chat.auth;
 
+import ru.geekbrains.java2.network.server.chat.User;
+
+import java.util.List;
+
 public interface AuthService {
 
     void start();
@@ -8,4 +12,5 @@ public interface AuthService {
 
     void stop();
 
+    void setUsers(List<User> users);
 }
