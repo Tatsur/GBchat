@@ -83,7 +83,6 @@ public class NetworkChatClient extends Application {
     }
     private void openAuthDialog(Stage primaryStage) throws java.io.IOException {
         FXMLLoader authLoader = new FXMLLoader();
-
         authLoader.setLocation(NetworkChatClient.class.getResource("/views/authDialog.fxml"));
         Parent authDialogPanel = authLoader.load();
         authDialogStage = new Stage();
