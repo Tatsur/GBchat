@@ -1,5 +1,7 @@
 package ru.geekbrains.java2.network.server.chat.handler;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import ru.geekbrains.java2.network.clientserver.Command;
 import ru.geekbrains.java2.network.clientserver.CommandType;
 import ru.geekbrains.java2.network.clientserver.commands.AuthCommandData;
@@ -27,6 +29,8 @@ public class ClientHandler {
 
     private String username;
 
+    private static final Logger logger = Logger.getLogger(ClientHandler.class.getName());
+
     public ClientHandler(MyServer myServer, Socket clientSocket) {
         this.myServer = myServer;
         this.clientSocket = clientSocket;
@@ -46,7 +50,7 @@ public class ClientHandler {
                 try {
                     closeConnection();
                 } catch (IOException e) {
-                    System.err.println("Failed to close connection!");
+                    logger.log(Level.ERROR,"Failed to close connection!");
                 }
             }
         });
@@ -70,6 +74,7 @@ public class ClientHandler {
                     String recipient = data.getReceiver();
                     String privateMessage = data.getMessage();
                     myServer.sendPrivateMessage(recipient,Command.messageInfoCommand(privateMessage, username));
+                    logger.log(Level.INFO,String.format("client: %s sent a private message",recipient));
                     break;
                 }
                 case PUBLIC_MESSAGE:{
@@ -77,25 +82,26 @@ public class ClientHandler {
                     String message = data.getMessage();
                     String sender = data.getSender();
                     myServer.broadcastMessage(this,Command.messageInfoCommand(message,sender));
+                    logger.log(Level.INFO,String.format("client: %s sent a broadcast message",sender));
                     break;
                 }case CHANGE_NAME:{
                     ChangeNameCommandData data  = (ChangeNameCommandData) command.getData();
                     String username = data.getUsername();
                     String newUserName = data.getNewUserName();
+                    logger.log(Level.INFO,String.format("client: %s sent a command to change his name",username));
                     try {
                         myServer.changeUsername(username, newUserName);
                         this.username = newUserName;
                         myServer.sendPrivateMessage(this.username,Command.changeNameCommand(username,newUserName));
                     } catch (SQLException throwables) {
-                        System.err.println("Can't change username! Database exception!");
-                        throwables.printStackTrace();
+                        logger.log(Level.ERROR,"Can't change username! Database exception! \n"+throwables.getMessage());
                     }
                     myServer.update();
                     myServer.sendPrivateMessage(this.username,Command.messageInfoCommand(username+"(you) changed username to "+ newUserName,"Server"));
                     break;
                 }
                 default:
-                    System.err.println("Unknown type of command: "+command.getType());
+                    logger.log(Level.ERROR,"Unknown type of command: "+command.getType());
             }
         }
     }
@@ -105,7 +111,7 @@ public class ClientHandler {
             return  (Command) in.readObject();
         } catch (ClassNotFoundException | SocketException e) {
             String errorMessage = "Unknown type of object from client!";
-            System.err.println(errorMessage);
+            logger.log(Level.ERROR,errorMessage);
             e.printStackTrace();
             sendMessage(Command.errorCommand(errorMessage));
             return null;
@@ -121,6 +127,7 @@ public class ClientHandler {
             }
             if(command.getType() == CommandType.AUTH){
                 boolean isSuccessAuth = processAuthCommand(command);
+                logger.log(Level.INFO,"A client sent authentication command");
                 if(isSuccessAuth) break;
 
             }
@@ -138,11 +145,11 @@ public class ClientHandler {
                     try {
                         Command command = Command.authErrorCommand("authentication time out: > 120sec");
                         out.writeObject(command);
-                        System.out.println("closing connection...");
+                        logger.log(Level.INFO,"closing connection due to timeout...");
                         Thread.sleep(500);
                         closeConnection();
                     } catch (IOException | InterruptedException e) {
-                        System.err.println("Client socket error");
+                        logger.log(Level.ERROR,"Client socket error "+ e.getMessage());
                         e.printStackTrace();
                     }
                 }
@@ -162,7 +169,8 @@ public class ClientHandler {
                 return false;
             }
             sendMessage(Command.authOkCommand(username));
-            String message = username + " joined to chat!";
+            String message = username + " joined the chat!";
+            logger.log(Level.INFO,message);
             myServer.broadcastMessage(this, Command.messageInfoCommand(message,null));
             myServer.subscribe(this);
             return true;

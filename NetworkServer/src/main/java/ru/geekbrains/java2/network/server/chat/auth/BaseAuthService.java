@@ -1,22 +1,24 @@
 package ru.geekbrains.java2.network.server.chat.auth;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import ru.geekbrains.java2.network.server.chat.User;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class BaseAuthService implements AuthService {
-
+    private static final Logger logger = Logger.getLogger(BaseAuthService.class.getName());
     private static final List<User> USERS = new ArrayList<>();
 
     @Override
     public void start() {
-        System.out.println("Auth service has been started");
+        logger.log(Level.INFO,"Auth service has been started");
     }
 
     @Override
     public void stop() {
-        System.out.println("Auth service has been finished");
+        logger.log(Level.INFO,"Auth service has been finished");
     }
 
     @Override

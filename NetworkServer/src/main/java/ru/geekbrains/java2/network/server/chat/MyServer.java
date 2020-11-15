@@ -1,5 +1,7 @@
 package ru.geekbrains.java2.network.server.chat;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import ru.geekbrains.java2.network.clientserver.Command;
 import ru.geekbrains.java2.network.server.ThreadExecutor;
 import ru.geekbrains.java2.network.server.chat.auth.AuthService;
@@ -20,6 +22,7 @@ public class MyServer {
     private final AuthService authService;
     private final Database database;
     private final IThreadExecutor threadExecutor;
+    private static final Logger logger = Logger.getLogger(MyServer.class.getName());
 
     public IThreadExecutor getThreadExecutor() {
         return threadExecutor;
@@ -33,16 +36,16 @@ public class MyServer {
     }
 
     public void start() throws IOException {
-        System.out.println("Сервер был запущен");
+        logger.log(Level.INFO,"Server started");
 
         authService.start();
         authService.setUsers(database.getUsers());
         try {
-            while (true) {
+            while (!serverSocket.isClosed()) {
                 waitAndProcessNewClientConnection();
             }
         } catch (IOException e) {
-            System.err.println("Failed to accept new connection");
+            logger.log(Level.ERROR,"Failed to accept new connection \n"+e.getMessage());
             e.printStackTrace();
         } finally {
             authService.stop();
@@ -53,9 +56,9 @@ public class MyServer {
     }
 
     private void waitAndProcessNewClientConnection() throws IOException {
-        System.out.println("Ожидание нового подключения....");
+        logger.log(Level.INFO,"Waiting new client connection...");
         Socket clientSocket = serverSocket.accept();
-        System.out.println("Клиент подключился");// /auth login password
+        logger.log(Level.INFO,"Client connected");
         processClientConnection(clientSocket);
     }
 
@@ -120,7 +123,6 @@ public class MyServer {
     }
 
     public void changeUsername(String username, String newUserName) throws SQLException {
-        System.out.format("%s -> %s%n",username,newUserName);
         database.changeUserName(username,newUserName);
     }
 }

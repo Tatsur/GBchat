@@ -1,5 +1,8 @@
 package ru.geekbrains.java2.network.server.chat;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,24 +11,28 @@ public class Database {
 
 private Connection connection;
 private List<User> users;
+private static final Logger logger = Logger.getLogger(Database.class.getName());
 
  public Database()  {
      init();
      try{
          Connection connection = getConnection();
+         logger.log(Level.INFO,"Database connected");
         this.connection = connection;
         createDB();
         writeDB();
         users = getUsersFromDB();
      } catch (SQLException e ){
-         e.printStackTrace();
+         logger.log(Level.ERROR,e.getMessage());
+         //e.printStackTrace();
      }
  }
     private void init() {
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR,e.getMessage());
+            //e.printStackTrace();
         }
     }
 
@@ -83,15 +90,16 @@ private List<User> users;
     public void changeUserName(String usernameValue, String newUsernameValue) throws SQLException {
       try(Statement statement = connection.createStatement()){
           statement.executeUpdate(String.format("UPDATE users SET username = '%s' WHERE username = '%s'",newUsernameValue,usernameValue));
+          logger.log(Level.INFO,String.format("%s -> %s username updated",usernameValue,newUsernameValue));
       }
     }
 
     public void stop() {
         try {
             connection.close();
-        } catch (SQLException throwables) {
-            System.err.println("Database exception when trying to close the connection");
-            throwables.printStackTrace();
+            logger.log(Level.INFO,"Database connection closed");
+        } catch (SQLException e) {
+            logger.log(Level.ERROR,"Database exception when trying to close the connection"+e.getMessage());
         }
     }
 }
