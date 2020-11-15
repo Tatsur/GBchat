@@ -18,11 +18,18 @@ public class Task2Test {
     }
 
     @Test
-    public void testMainOp(){
+    public void testMainOp1(){
         Assert.assertArrayEquals(new int[]{1,7},task2.arrayOp(testArray));
-        Assert.assertArrayEquals(new int[]{9,3,9,1,7},task2.arrayOp(new int[]{1,2,1,4,9,3,9,1,7}));
-        Assert.assertArrayEquals(new int[]{},task2.arrayOp(new int[]{1,2,1,4,9,3,9,1,4}));
     }
+    @Test
+    public void testMainOp2(){
+        Assert.assertArrayEquals(new int[]{1,1,7},task2.arrayOp(new int[]{1,2,4,4,2,4,1,1,7}));
+    }
+    @Test
+    public void testMainOp3(){
+        Assert.assertArrayEquals(new int[]{},task2.arrayOp(new int[]{1,2,4,4,2,4,1,1,4}));
+    }
+
     @Test(expected = RuntimeException.class)
     public void testRuntimeException(){
         task2.arrayOp(new int[]{1,2,1,1,2,3,1,1,7});
