@@ -32,9 +32,10 @@
 # .idea/compiler.xml
 # .idea/jarRepositories.xml
 # .idea/modules.xml
-# .idea/*.iml
+.idea/*.iml
 # .idea/modules
-# *.iml
+*.iml
+.idea/encodings.xml
 # *.ipr
 
 # CMake
@@ -73,4 +74,3 @@ fabric.properties
 /.idea/
 /chatDB.s3db
 /chatHistory.txt
-*.iml
